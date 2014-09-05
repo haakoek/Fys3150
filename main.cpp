@@ -131,7 +131,13 @@ int main(int argc, char* argv[])
         ofile1 << setw(15) << setprecision(8) << elapsed_secs3;
     }
 
-    //output(computed_solution,exact,relative_error, n);
+    int alldata = atoi(argv[2]);
+
+    if(alldata < 0) {
+        //In case we want all data, we give a number less than 0 as the second command line
+        //argument.
+        output(computed_solution,exact,relative_error, n);
+    }
 
     ofile1.close();
     ofile2.close();
