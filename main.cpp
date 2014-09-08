@@ -1,8 +1,17 @@
 /*
  * Project1 Fys3150
  * Authors: Haakon Kristiansen and Stian Goplen
+ *
  * Program to solve the 1-dimensional Poisson equation
  * with Dirichlet boundary conditions.
+ *
+ * -u''(x) = f(x)
+ * u(0)=u(1)=0
+ * f(x)=100*exp(-10x)
+ *
+ * Where
+ * u(x)=1-(1-exp(-10))*x - exp(-10*x)
+ * is the exact solution.
 */
 
 #include <iostream>
@@ -224,6 +233,14 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+/*
+ * source_term computes f(x) at the grid points
+ * exact_solution computes the exact solution
+ * rel_error computes the relative error given by: err = log10(abs((u(x_i)-v(x_i)/(u(x_i)))
+ * output writes the computed solution, exact solution, and relative error to outfile2.
+ * solver computes the approximated solution, computed_solution.
+*/
+
 double source_term(double x) {
     return 100*exp(-10*x);
 }
@@ -232,14 +249,25 @@ double exact_solution(double x) {
     return 1.0-(1.0-exp(-10.0))*x - exp(-10*x);
 }
 
+void rel_error(double* relative_error,double* exact, double* comp_sol, int n) {
+    int i;
+    for(i=1; i < n+1;i++) {
+        relative_error[i] = log10(abs((exact[i]-comp_sol[i])/(exact[i])));
+    }
+}
+
 void solver(double *a, double *b, double *c, double *g,double *sol,int n) {
 
     int k;
+
+    //First do forward substition.
 
     for(k=2; k < n+1; k++) {
         a[k] = a[k] - (b[k-1]/(a[k-1]))*c[k-1];
         g[k] = g[k] - (b[k-1]/a[k-1])*g[k-1];
     }
+
+    //Finally, back substitue in order to obtain the numerical solution.
 
     sol[n] = g[n]/a[n];
 
@@ -247,13 +275,6 @@ void solver(double *a, double *b, double *c, double *g,double *sol,int n) {
         sol[k] = (g[k] - c[k]*sol[k+1])/a[k];
     }
 
-}
-
-void rel_error(double* relative_error,double* exact, double* comp_sol, int n) {
-    int i;
-    for(i=1; i < n+1;i++) {
-        relative_error[i] = log10(abs((exact[i]-comp_sol[i])/(exact[i])));
-    }
 }
 
 void output(double *v,double *u, double*rel, int num) {
