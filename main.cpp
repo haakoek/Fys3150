@@ -1,6 +1,8 @@
 /*
- Program to solve the 1-dimensional Poisson equation
- with Dirichlet boundary conditions.
+ * Project1 Fys3150
+ * Authors: Haakon Kristiansen and Stian Goplen
+ * Program to solve the 1-dimensional Poisson equation
+ * with Dirichlet boundary conditions.
 */
 
 #include <iostream>
@@ -37,9 +39,9 @@ int main(int argc, char* argv[])
     char *outfile1;
     char *outfile2;
 
-
-
-    //Read problem size from command line, and abort if there are too few command-line arguments.
+    /* Read problem size and at least one outputfile from command line,
+     * and abort if there are too few command-line arguments.
+    */
 
     if(argc <= 2) {
         cout << "Bad usage: " << argv[0] << endl;
@@ -64,6 +66,11 @@ int main(int argc, char* argv[])
     relative_error = new double[n+2];
     computed_solution = new double[n+2];
     exact = new double[n+2];
+
+    /*
+     * Compute right handside, initialize a,b,c, and relative_error
+     * and finally compute the exact solution.
+    */
 
     for(i=0; i < n+2; i++) {
         g[i] = pow(h,2)*source_term(i*h);
@@ -97,12 +104,38 @@ int main(int argc, char* argv[])
     ofile1 << setw(15) << setprecision(8) << relative_error[n/2];
     ofile1 << setw(15) << setprecision(8) << elapsed_secs1;
 
+    if(argc >= 3) {
+
+        /* If we want to write the computed solution, and exact solution to file
+         * provide a second output file on the command line.
+        */
+
+        outfile2 = argv[3];
+        ofile2.open(outfile2, ios::out);
+        output(computed_solution,exact,relative_error, n);
+    }
+
+    //Clear arrays which are not longer needed, g is needed below
+
+    delete [] a;
+    delete [] b;
+    delete [] c;
+    delete [] relative_error;
+    delete [] computed_solution;
+    delete [] exact;
+
     //If the problem size is less then 10000, we also want to compute the solution,
     //using armadillos solve, and lu decomposition.
 
     if(n <= 10000) {
 
-        //Declare matrices, using armadillo.
+        /*Declare matrices, using armadillo.
+         * L, U and P is used in the LU decomposition
+         * A is the second-derivative matrix.
+         * B is the right hand side in Ax=B
+         * C is a randomally generated matrix, used to test the run time of armadillos solve
+         * where the matrix is not necesserally tridiagonal
+        */
 
         mat L = zeros<mat>(n,n);
         mat U = zeros<mat>(n,n);
@@ -120,7 +153,9 @@ int main(int argc, char* argv[])
             }
         }
 
-        //Standard Gauss-Jordan elimination
+        /*Standard Gauss-Jordan elimination
+         * X is the solution to AX=B.
+        */
 
         clock_t begin2 = clock();
 
@@ -130,23 +165,14 @@ int main(int argc, char* argv[])
 
         double elapsed_secs2 = double(end2 - begin2) / CLOCKS_PER_SEC;
 
-        /*This second Gauss solution is of no significance to the actual problem,
-          but to test the exectuion time, as it seems that armadillo recognizes
-          the tridiagonal property of A, and reduces the exection time for GJ, from
-          O(n**3) to O(n**2). Hence we want to check that for a random generated matrix C, the
-          solution is actually O(n**3) for GJ as we would expect.
+
+        /* LU decomposition
+         * First decompose A into, st PA=LU, calling lu(L,U,P,A)
+         * Then solve Ly=PB
+         * Finally to obtain a solution solve Ux=y
+         * We are only interested in the time it takes to solve the last system, so we only clock
+         * the time it takes to solve Ux=y.
         */
-
-
-        clock_t begin4 = clock();
-
-        mat X2 = solve(C,B);
-
-        clock_t end4 = clock();
-
-        double elapsed_secs4 = double(end4 - begin4) / CLOCKS_PER_SEC;
-
-        //LU decomposition
 
         lu(L,U,P,A);
 
@@ -160,26 +186,40 @@ int main(int argc, char* argv[])
 
         double elapsed_secs3 = double(end3 - begin3) / CLOCKS_PER_SEC;
 
-        //Write execution times to file.
+        /*This second Gauss solution is of no significance to the actual problem,
+          * but to test the exectuion time, as it seems that armadillo recognizes
+          * the tridiagonal property of A, and reduces the exection time for GJ, from
+          * O(n**3) to O(n**2). Hence we want to check that for a random generated matrix C, the
+          * solution is actually O(n**3) for GJ as we would expect.
+          * Y is the solution of CY=B.
+        */
+
+
+        clock_t begin4 = clock();
+
+        mat Y = solve(C,B);
+
+        clock_t end4 = clock();
+
+        double elapsed_secs4 = double(end4 - begin4) / CLOCKS_PER_SEC;
+
+        //Finally we write the exection times to outfile1.
 
         ofile1 << setw(15) << setprecision(8) << elapsed_secs2;
         ofile1 << setw(15) << setprecision(8) << elapsed_secs3;
         ofile1 << setw(15) << setprecision(8) << elapsed_secs4;
+
+
+
     }
 
-
-
-    if(argc >= 3) {
-        //If we want to write the computed solution, and exact solution to file
-        //provide a second output file on the command line.
-
-        outfile2 = argv[3];
-        ofile2.open(outfile2, ios::out);
-        output(computed_solution,exact,relative_error, n);
-    }
+    //Close files, and free memory.
 
     ofile1.close();
     ofile2.close();
+
+    delete [] g;
+
 
     return 0;
 }
