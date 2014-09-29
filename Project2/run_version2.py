@@ -12,7 +12,7 @@ system(compile_string)
 
 n_start = 40
 n_end = 200 
-rho_max = 5
+rho_max = 15
 
 n_step = linspace(n_start,n_end,((n_end - n_start)/10) + 1)
 
@@ -36,24 +36,40 @@ for i in xrange(len(n_step)):
 	computed_l3[i] = tmp[4]
 	time_vec[i] = tmp[5]
 	time_vec_arma[i] = tmp[6]
-	
 	inFile.close()
-    
-
-from scitools.all import *
-
+	
+from matplotlib import pyplot as plt
+balle = 0
 #Plot of number of similarity transforms before all non-diagonal elements are less than eps=1.0e-8
-figure()
-plot(n_step,iterations,title="n_step vs number of similarity transformations with rho_max=%d, eps=1.0e-8" % rho_max,
-	savefig="nstep_iterations.png", show=False,xlabel='n_step',ylabel='number of similarity transforms')
+plt.figure(balle)
+plt.plot(n_step,iterations)
+plt.suptitle("n_step vs number of similarity transformations with rho_max=%d, eps=1.0e-8" % rho_max, fontsize=14)
+plt.xlabel('n_step', fontsize=14)
+plt.ylabel('number of similarity transforms', fontsize=14)
+plt.rc('xtick', labelsize=15)
+plt.rc('ytick', labelsize=15)
+plt.savefig("nstep_iterations.png")
+plt.hold('off')
 
-figure()
-plot(n_step, time_vec,title="Runtime of Jacobi's Rotation Algorithm, rho_max=%d eps=1.0e-8" % rho_max,
-	savefig="Jacobitimeplot.png",show=False,xlabel='n_step',ylabel='time[s]')
 
-figure()
-plot(n_step, time_vec_arma,title="Runtime of Armadillos eigensolver, rho_max=%d eps=1.0e-8" % rho_max,
-	savefig="armatimeplot.png",show=False,xlabel='n_step',ylabel='time[s]')
+plt.figure(balle+1)
+plt.plot(n_step,time_vec)
+plt.suptitle("Runtime of Jacobi's Rotation Algorithm, rho_max=%d eps=1.0e-8" % rho_max, fontsize=17)
+plt.xlabel('n_step', fontsize=20)
+plt.ylabel('time[s]', fontsize=20)
+plt.rc('xtick', labelsize=15)
+plt.rc('ytick', labelsize=15)
+plt.savefig("Jacobitimeplot.png")
+
+
+plt.figure(balle+2)
+plt.plot(n_step,time_vec_arma)
+plt.suptitle("Runtime of Armadillos eigensolver, rho_max=%d eps=1.0e-8" % rho_max, fontsize=17)
+plt.xlabel('n_step', fontsize=20)
+plt.ylabel('time[s]', fontsize=20)
+plt.rc('xtick', labelsize=15)
+plt.rc('ytick', labelsize=15)
+plt.savefig("armatimeplot.png")
 
 for i in xrange(len(n_step)):
 	if n_step[i] >= 100:

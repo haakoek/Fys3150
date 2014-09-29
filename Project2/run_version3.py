@@ -18,7 +18,7 @@ for om in omega_r:
 	systemStr = "./exec.out version3 %d %d %f" % (n,rho_max,om)
 	system(systemStr)
 	
-	inFile = open('version3_output.txt', 'r')
+	inFile = open('eigenvectors.txt', 'r')
 	
 	ground_state = zeros(n+1)
 	first_ex = zeros(n+1)
