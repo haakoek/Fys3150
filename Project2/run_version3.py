@@ -72,11 +72,4 @@ for om in omega_r:
 	
 	balle = balle + 3
 		
-	"""
-	figure()
-	plot(x,ground_state,savefig="ground_state%.3f.png" % om, show=False,title="ground_state w = %.3f rho_max = %.1f" % (om,rho_max),fontsize=30, xlabel="p", ylabel="u(p)")
-	figure()
-	plot(x,first_ex,savefig="first_ex%.3f.png" % om, show=False,title="first_ex w = %.3f rho_max = %.1f" % (om, rho_max), xlabel="p", ylabel="u(p)")
-	figure()
-	plot(x,second_ex,savefig="second_ex%.3f.png" % om, show=False,title="second_ex w = %.3f rho_max = %.1f" % (om, rho_max), xlabel="p", ylabel="u(p)")
-"""	
+	

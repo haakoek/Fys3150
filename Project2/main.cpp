@@ -1,4 +1,12 @@
-﻿#include <iostream>
+﻿/*
+ * Program which solves the eigenvalue problem -u''(rho) + V(rho)*u(rho) = lambda*u(rho)
+ * for V(rho) = rho**2 and V(rho) = omega_r**2*rho**2 + 1/rho, using Jacobi's rotation algorithm.
+ *
+ * Authors: Håkon Kristiansen and Stian Goplen
+ * Date: 30.09.2014
+ */
+
+#include <iostream>
 #include <armadillo>
 #include <iomanip>
 #include <fstream>
@@ -11,21 +19,24 @@
 using namespace std;
 using namespace arma;
 
+//Function declarations.
+
 double potential(double);
 double max_offdiag(mat,int *, int *, int);
 void JacobiRotation(mat &A, int k, int l, int n,mat &R);
 void output_version1(vec first_three, double rho_max,double h, int iterations);
 void output_version2(int n_step, int iterations, vec first_three, double time1, double time2);
-void output_version3(mat R, int n);
+void write_eigenvectors(mat R, int n);
 double coulomb_potential(double rho, double omega_r);
 void normalize(mat &R, int n);
 void sortEigenVectors(mat &A, mat &R, int n);
 
-//Explanation of const.
+//fixed_h is used in version2 to check the stability of the computed eigenvalues with respect to rho_max
 
 const double fixed_h = 0.05;
-
+//Declare output files.
 ofstream ofile1;
+ofstream eigenvectors_file;
 
 int main(int argc, char* argv[])
 {
@@ -103,7 +114,7 @@ int main(int argc, char* argv[])
      * If version is version1 or version2 we use the harmonic oscillator potential V(rho) = rho**2
      * If version is version3 we use the coulomb potential.
      *
-     * A is ...
+     * A is is the second derivative matrix.
      * R is a matrix which is used to hold the eigenvectors in it's columns.
      * */
 
@@ -132,7 +143,7 @@ int main(int argc, char* argv[])
     //End initialization
 
 
-    //Compute the solution to the eigenproblem A*u=(lamba)*u, using Jacobi's Rotation Algorithm.
+    //Compute the solution to the eigenproblem A*u=(lambda)*u, using Jacobi's Rotation Algorithm.
 
     int col;
     int row;
@@ -165,7 +176,7 @@ int main(int argc, char* argv[])
 
     //end Solve with armadillo.
 
-    //
+    //Store and sort the first three eigenvalues in a armadillo vector.
 
     vec lambda = A.diag();
 
@@ -178,19 +189,27 @@ int main(int argc, char* argv[])
 
     if (version.compare("version1") == 0) {
         ofile1.open("version1_output.txt",ios::out);
+        eigenvectors_file.open("eigenvectors.txt");
         output_version1(first_three, rho_max, h, iterations);
+        write_eigenvectors(R,n_step);
         ofile1.close();
+        eigenvectors_file.close();
     } else if (version.compare("version2") == 0) {
         ofile1.open("version2_output.txt",ios::out);
+        eigenvectors_file.open("eigenvectors.txt", ios::out);
         output_version2(n_step,iterations, first_three, elapsed_secs1, elapsed_secs2);
-        ofile1.close();
-    } else if (version.compare("version3") == 0) {
-
-        ofile1.open("version3_output.txt", ios::out);
         sortEigenVectors(A,R,n_step);
         normalize(R,n_step);
-        output_version3(R,n_step);
+        write_eigenvectors(R,n_step);
         ofile1.close();
+        eigenvectors_file.close();
+    } else if (version.compare("version3") == 0) {
+
+        eigenvectors_file.open("eigenvectors.txt", ios::out);
+        sortEigenVectors(A,R,n_step);
+        normalize(R,n_step);
+        write_eigenvectors(R,n_step);
+        eigenvectors_file.close();
     }
 
 
@@ -269,7 +288,7 @@ void JacobiRotation(mat &A, int k, int l, int n,mat &R) {
             A(i,l) = c*a_il + s*a_ik;
             A(l,i) = A(i,l);
         }
-
+        //Compute the eigenvectors
         r_ik = R(i,k);
         r_il = R(i,l);
         R(i,k) = c*r_ik - s*r_il;
@@ -327,16 +346,22 @@ void normalize(mat &R, int n) {
 
 }
 
-void output_version3(mat R, int n) {
+void write_eigenvectors(mat R, int n) {
 
-    ofile1 << setiosflags(ios::showpoint | ios::uppercase);
+    /*
+     * Write the column 1,2,3 (the first three eigenvectors) to file.
+     */
+
+
+    eigenvectors_file << setiosflags(ios::showpoint | ios::uppercase);
+
 
 
 
     for(int i = 0; i < n+1; i++) {
-        ofile1 << setw(20) << setprecision(8) << R(i,1);
-        ofile1 << setw(20) << setprecision(8) << R(i,2);
-        ofile1 << setw(20) << setprecision(8) << R(i,3) << endl;
+        eigenvectors_file << setw(20) << setprecision(8) << R(i,1);
+        eigenvectors_file << setw(20) << setprecision(8) << R(i,2);
+        eigenvectors_file << setw(20) << setprecision(8) << R(i,3) << endl;
 
     }
 
