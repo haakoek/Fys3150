@@ -13,7 +13,8 @@ System::System() :
     m_potential(0),
     m_integrator(0),
     m_currentTime(0),
-    m_steps(0)
+    m_steps(0),
+    m_rCut(2.5*UnitConverter::lengthFromAngstroms(3.405))
 {
 
 }
@@ -109,7 +110,7 @@ void System::createFCCLattice(int numberOfUnitCellsEachDimension, double lattice
         }
 
     }
-
+    setSystemSize(vec3 (N*b,N*b,N*b));
 
 }
 
@@ -119,6 +120,7 @@ void System::calculateForces() {
 }
 
 void System::step(double dt) {
+    //cout << "System sin step" << endl;
     m_integrator->integrate(this, dt);
     m_steps++;
     m_currentTime += dt;

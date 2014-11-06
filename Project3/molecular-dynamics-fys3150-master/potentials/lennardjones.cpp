@@ -1,6 +1,7 @@
 #include <potentials/lennardjones.h>
 #include <cmath>
 #include <iostream>
+#include <CellList.h>
 
 using namespace std;
 
@@ -71,9 +72,21 @@ void LennardJones::calculateForces(System *system)
             atom_i->force.add(Force_i);
             atom_j->force.add(Force_j);
 
-            m_potentialEnergy = m_potentialEnergy + 4.0*m_epsilon*(pow(m_sigma,12)/pow(dr,12) - pow(m_sigma,6)/pow(dr,6));
+            m_potentialEnergy = m_potentialEnergy + 4.0*m_epsilon*(pow(m_sigma,12)/pow(dr,12) - pow(m_sigma,6)/pow(dr,6)); //-U(r_c)
         }
     }
 
     //cout << "PotEn:" << m_potentialEnergy << endl;
+}
+
+void LennardJones::calculateForcesWithCellList(System *system)
+{
+    for(int i = 0; i < system->atoms().size(); i++) {
+        Atom *atom_i = system->atoms()[i];
+        atom_i->force.setToZero();
+    }
+
+    m_potentialEnergy = 0;
+
+
 }

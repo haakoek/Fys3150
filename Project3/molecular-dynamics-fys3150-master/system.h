@@ -3,6 +3,7 @@
 #include <atom.h>
 #include <math/vec3.h>
 #include <iostream>
+#include <CellList.h>
 
 
 class Potential; class Integrator;
@@ -18,7 +19,9 @@ private:
     Potential *m_potential;
     Integrator *m_integrator;
     double m_currentTime;
+
     int m_steps;
+    CellList myCellist;
 
 public:
     System();
@@ -29,11 +32,12 @@ public:
     void removeMomentum();
     void calculateForces();
     void step(double dt);
+    double m_rCut;
 
     // Setters and getters
     vector<Atom *> &atoms() { return m_atoms; }
     vec3 systemSize() { return m_systemSize; }
-    void setSystemSize(vec3 systemSize) { m_systemSize = systemSize; }
+    void setSystemSize(vec3 systemSize) { m_systemSize = systemSize; myCellist.setup(this,m_rCut); }
     Potential *potential() { return m_potential; }
     void setPotential(Potential *potential) { m_potential = potential; }
     double currentTime() { return m_currentTime; }

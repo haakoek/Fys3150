@@ -36,6 +36,7 @@ public:
     void randomGaussian(double mean, double standardDeviation);
     void randomUniform(double min, double max);
     void set(double x, double y, double z);
+    void scale(double gamma);
     inline double x() const { return m_vec[0]; }
     inline double y() const { return m_vec[1]; }
     inline double z() const { return m_vec[2]; }

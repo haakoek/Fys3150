@@ -1,0 +1,52 @@
+#include <CellList.h>
+#include <system.h>
+
+
+CellList::CellList()
+{
+
+}
+
+CellList::~CellList()
+{
+
+}
+
+void CellList::setup(System *system, double r_cut)
+{
+    nx = (system->systemSize().x()/r_cut);
+    ny = (system->systemSize().y()/r_cut);
+    nz = (system->systemSize().z()/r_cut);
+
+
+    cells.resize(nx);
+    for(int i = 0; i < nx; i++) {
+        cells[i].resize(ny);
+        for(int j = 0; j < nz; j++) {
+            cells[i][j].resize(nz);
+        }
+    }
+}
+
+void CellList::update(System *system)
+{
+    clearList();
+    for(int n = 0; n < system->atoms().size(); n++) {
+        Atom* atom = system->atoms()[n];
+        int i = (atom->position.x()/system->systemSize().x())*nx;
+        int j = (atom->position.y()/system->systemSize().y())*ny;
+        int k = (atom->position.z()/system->systemSize().z())*nz;
+        cells[i][j][k].push_back(atom);
+    }
+}
+
+void CellList::clearList()
+{
+    for(int i = 0; i < nx; i++) {
+        for(int j = 0; j < ny; j++) {
+            for(int k = 0; k < nz; k++) {
+                cells[i][j][k].clear();
+            }
+        }
+    }
+}

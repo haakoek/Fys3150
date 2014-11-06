@@ -1,6 +1,10 @@
 #include <cmath>
 #include <math/vec3.h>
 #include <math/random.h>
+#include <iostream>
+
+using namespace std;
+
 namespace CompPhys {
 vec3::vec3()
 {
@@ -115,6 +119,12 @@ void vec3::randomGaussian(double mean, double standardDeviation) {
     m_vec[0] = Random::nextGaussian(mean, standardDeviation);
     m_vec[1] = Random::nextGaussian(mean, standardDeviation);
     m_vec[2] = Random::nextGaussian(mean, standardDeviation);
+}
+
+void vec3::scale(double g) {
+    m_vec[0] = m_vec[0]*g;
+    m_vec[1] = m_vec[1]*g;
+    m_vec[2] = m_vec[2]*g;
 }
 
 std::ostream& operator<<(std::ostream &stream, vec3 &vec) {
