@@ -2,8 +2,11 @@
 #include <atom.h>
 #include <math/random.h>
 
+int Atom::numberOfAtoms = 0;
+
 Atom::Atom(double mass) :
-    m_mass(mass)
+    m_mass(mass),
+    m_index(Atom::numberOfAtoms++)
 {
     
 }

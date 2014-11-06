@@ -74,7 +74,7 @@ int main()
             statisticsSampler->printSample(timestep);
         }
 
-        myThermostat.adjustVelocity(&system, dt, statisticsSampler->temperature);
+        //myThermostat.adjustVelocity(&system, dt, statisticsSampler->temperature);
 
         system.step(dt);
 

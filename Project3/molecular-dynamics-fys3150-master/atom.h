@@ -5,6 +5,8 @@ using CompPhys::vec3;
 class Atom
 {
 private:
+    static int numberOfAtoms;
+    int    m_index;
     double m_mass;
 public:
     vec3 position;
@@ -18,4 +20,5 @@ public:
 
     inline double mass() { return m_mass; }
     inline void setMass(double mass) { m_mass = mass; }
+    inline int index() { return m_index; }
 };

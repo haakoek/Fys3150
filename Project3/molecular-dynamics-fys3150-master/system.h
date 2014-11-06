@@ -21,7 +21,7 @@ private:
     double m_currentTime;
 
     int m_steps;
-    CellList myCellist;
+
 
 public:
     System();
@@ -33,6 +33,7 @@ public:
     void calculateForces();
     void step(double dt);
     double m_rCut;
+    CellList myCellist;
 
     // Setters and getters
     vector<Atom *> &atoms() { return m_atoms; }
