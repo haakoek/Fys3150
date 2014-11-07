@@ -28,6 +28,7 @@ void LennardJones::calculateForces(System *system)
     }
 
     m_potentialEnergy = 0; // Remember to compute this in the loop
+    vec3 systemSize = system->systemSize();
 
     for(int i = 0; i < system->atoms().size(); i++) {
         for(int j = i+1; j < system->atoms().size(); j++) {
@@ -38,29 +39,9 @@ void LennardJones::calculateForces(System *system)
             vec3 r_ij = atom_i->position - atom_j->position;
 
             //Minimum Image Criterion
-
-            if(fabs(r_ij.x()) > system->systemSize().x()*0.5) {
-                if (r_ij.x() > 0) {
-                    r_ij.setX(r_ij.x() - system->systemSize().x());
-                } else {
-                    r_ij.setX(r_ij.x() + system->systemSize().x());
-                }
-            }
-
-            if(fabs(r_ij.y()) > system->systemSize().y()*0.5) {
-                if (r_ij.y() > 0) {
-                    r_ij.setY(r_ij.y() - system->systemSize().y());
-                } else {
-                    r_ij.setY(r_ij.y() + system->systemSize().y());
-                }
-            }
-
-            if(fabs(r_ij.z()) > system->systemSize().z()*0.5) {
-                if (r_ij.z() > 0) {
-                    r_ij.setZ(r_ij.z() - system->systemSize().z());
-                } else {
-                    r_ij.setZ(r_ij.z() + system->systemSize().z());
-                }
+            for(int a=0; a<3; a++) {
+                if(r_ij[a] > 0.5*systemSize[a]) r_ij[a] -= systemSize[a];
+                else if(r_ij[a] < -0.5*systemSize[a]) r_ij[a] += systemSize[a];
             }
 
             //End Minimum Image Criterion

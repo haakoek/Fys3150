@@ -8,7 +8,7 @@
 
 class Potential; class Integrator;
 using std::vector;
-using CompPhys::vec3;
+
 
 class System
 {

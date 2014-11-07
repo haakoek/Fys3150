@@ -31,6 +31,6 @@ void BerendsenThermostat::adjustVelocity(System* system, double dt,double system
 
         Atom *atom_i = system->atoms()[i];
 
-        atom_i->velocity.scale(gamma);
+        atom_i->velocity *= (gamma);
     }
 }

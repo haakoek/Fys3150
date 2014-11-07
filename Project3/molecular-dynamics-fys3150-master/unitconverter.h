@@ -4,7 +4,7 @@
 #include <math/vec3.h>
 
 using std::vector;
-using CompPhys::vec3;
+
 
 enum Units {SIUnits = 0, AtomicUnits, MDUnits};
 
