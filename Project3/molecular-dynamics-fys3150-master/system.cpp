@@ -31,21 +31,21 @@ void System::applyPeriodicBoundaryConditions() {
     for(int i = 0; i < m_atoms.size(); i++) {
         Atom *atom = m_atoms[i];
 
-       if (atom->position.x() < -0.5*m_systemSize.x()) {
+       if (atom->position.x() < 0) {
             atom->position.addX(m_systemSize.x());
-       } else if(atom->position.x() >= 0.5*m_systemSize.x()) {
+       } else if(atom->position.x() >= m_systemSize.x()) {
             atom->position.addX(-m_systemSize.x());
        }
 
-       if (atom->position.y() < -0.5*m_systemSize.y()) {
+       if (atom->position.y() < 0) {
            atom->position.addY(m_systemSize.y());
-       } else if(atom->position.y() >= 0.5*m_systemSize.y()) {
+       } else if(atom->position.y() >= m_systemSize.y()) {
            atom->position.addY(-m_systemSize.y());
        }
 
-       if (atom->position.z() < -0.5*m_systemSize.z()) {
+       if (atom->position.z() < 0) {
            atom->position.addZ(m_systemSize.z());
-       } else if(atom->position.z() >= 0.5*m_systemSize.z()) {
+       } else if(atom->position.z() >= m_systemSize.z()) {
            atom->position.addZ(-m_systemSize.z());
        }
     }

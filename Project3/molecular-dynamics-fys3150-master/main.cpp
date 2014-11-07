@@ -17,7 +17,7 @@ using namespace std;
 
 int main()
 {
-    double dt = UnitConverter::timeFromSI(1e-14); // You should try different values for dt as well.
+    double dt = UnitConverter::timeFromSI(1e-15); // You should try different values for dt as well.
 
 
     cout << "One unit of length is " << UnitConverter::lengthToSI(1.0) << " meters" << endl;
@@ -33,7 +33,7 @@ int main()
     double b = 5.26;
     double boltz = 1.308*10E-23;
     cout << 119.8*boltz << endl;
-    int numberOfUnitCellsEachDimension = 5;
+    int numberOfUnitCellsEachDimension = 8;
     //int numberOfAtoms = pow(numberOfUnitCellsEachDimension,3)*4;
     //vec3 systemSize(b*numberOfUnitCellsEachDimension,b*numberOfUnitCellsEachDimension, b*numberOfUnitCellsEachDimension);
 
@@ -44,7 +44,9 @@ int main()
     //system.setSystemSize(UnitConverter::lengthFromAngstroms(systemSize));
     system.createFCCLattice(numberOfUnitCellsEachDimension, UnitConverter::lengthFromAngstroms(b), systemTemp);
 
-    system.setPotential(new LennardJones(sigma, 1.0)); // You must insert correct parameters here
+    LennardJones* potential = new LennardJones(sigma,1.0);
+    //potential->useCellLists = false;
+    system.setPotential(potential); // You must insert correct parameters here
     system.setIntegrator(new VelocityVerlet());
 
 
@@ -68,15 +70,19 @@ int main()
     int numTimeSteps = 1000;
     for(int timestep=0; timestep<numTimeSteps; timestep++) {
 
-        statisticsSampler->sample(&system);
 
-        if(timestep % 100 == 0) {
-            statisticsSampler->printSample(timestep);
-        }
+
+
+
 
         //myThermostat.adjustVelocity(&system, dt, statisticsSampler->temperature);
 
         system.step(dt);
+        if(timestep % 100 == 0) {
+            statisticsSampler->sample(&system);
+            statisticsSampler->printSample(timestep);
+        }
+
 
         movie->saveState(&system);
     }

@@ -1,5 +1,8 @@
 #include <CellList.h>
 #include <system.h>
+#include <iostream>
+
+using namespace std;
 
 
 CellList::CellList()
@@ -31,12 +34,19 @@ void CellList::setup(System *system, double r_cut)
 void CellList::update(System *system)
 {
     clearList();
+
     for(int n = 0; n < system->atoms().size(); n++) {
         Atom* atom = system->atoms()[n];
         int i = (atom->position.x()/system->systemSize().x())*nx;
         int j = (atom->position.y()/system->systemSize().y())*ny;
         int k = (atom->position.z()/system->systemSize().z())*nz;
         cells[i][j][k].push_back(atom);
+        /*
+        if(i< 0 || i >= nx || j< 0 || j >= ny || k< 0 || k >= nz) {
+            cout << i << " , " << j << " , " << k << endl;
+        }
+        */
+        //cells.at(i).at(j).at(k).push_back(atom);
     }
 }
 
