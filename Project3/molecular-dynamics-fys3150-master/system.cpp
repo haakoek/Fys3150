@@ -73,7 +73,6 @@ void System::resetForcesOnAllAtoms() {
 void System::createFCCLattice(int numberOfUnitCellsEachDimension, double latticeConstant, double systemTemp) {
 
     int N = numberOfUnitCellsEachDimension;
-    cout << m_atoms.size() << endl;
     double b = latticeConstant;
 
     for(int i = 0; i < N; i++) {

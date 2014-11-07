@@ -21,7 +21,7 @@ void CellList::setup(System *system, double r_cut)
     ny = (system->systemSize().y()/r_cut);
     nz = (system->systemSize().z()/r_cut);
 
-    cout << "Creating cells: " << nx << ", " << ny << ", " << nz << endl;
+    //cout << "Creating cells: " << nx << ", " << ny << ", " << nz << endl;
 
     cells.resize(nx);
     for(int i = 0; i < nx; i++) {
@@ -41,8 +41,8 @@ void CellList::update(System *system)
         int i = (atom->position.x()/system->systemSize().x())*nx;
         int j = (atom->position.y()/system->systemSize().y())*ny;
         int k = (atom->position.z()/system->systemSize().z())*nz;
-        //cells[i][j][k].push_back(atom);
-
+        cells[i][j][k].push_back(atom);
+        /*
         if(i< 0 || i >= nx || j< 0 || j >= ny || k< 0 || k >= nz) {
             cout << i << " , " << j << " , " << k << endl;
         }
@@ -55,6 +55,7 @@ void CellList::update(System *system)
             cout << "Cell indices: " << i << " , " << j << " , " << k << endl;
             cout << "Atom position: " << atom->position << endl;
         }
+        */
     }
 }
 
