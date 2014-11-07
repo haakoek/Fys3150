@@ -38,7 +38,7 @@ int main()
     //vec3 systemSize(b*numberOfUnitCellsEachDimension,b*numberOfUnitCellsEachDimension, b*numberOfUnitCellsEachDimension);
 
     System system;
-    double systemTemp = 1000.0;
+    double systemTemp = 200.0;
     double sigma = UnitConverter::lengthFromAngstroms(3.405);
     system.m_rCut = 2.5*sigma;
     //system.setSystemSize(UnitConverter::lengthFromAngstroms(systemSize));
@@ -65,26 +65,25 @@ int main()
 
     clock_t begin1 = clock();
 
-    BerendsenThermostat myThermostat(1.2,500.0); // tau = 1.2, Tbath = 500.
+    BerendsenThermostat myThermostat(dt*100,UnitConverter::temperatureFromSI(500.0),dt); // tau = 1.2, Tbath = 500.
+    bool thermostatOn = false; //should be some sys.argv.
 
     int numTimeSteps = 1000;
+
     for(int timestep=0; timestep<numTimeSteps; timestep++) {
 
-
-
-
-
-
-        //myThermostat.adjustVelocity(&system, dt, statisticsSampler->temperature);
-
         system.step(dt);
+        statisticsSampler->sample(&system);
+
         if(timestep % 100 == 0) {
-            statisticsSampler->sample(&system);
             statisticsSampler->printSample(timestep);
         }
 
-
+        if(thermostatOn) {
+            myThermostat.adjustVelocity(&system, statisticsSampler->temperature);
+        }
         movie->saveState(&system);
+
     }
 
     clock_t end1 = clock();
