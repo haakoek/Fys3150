@@ -12,32 +12,38 @@
 #include <unitconverter.h>
 #include <time.h>
 #include <BerendsenThermostat.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
     double dt = UnitConverter::timeFromSI(1e-15); // You should try different values for dt as well.
+    int numTimeSteps = 1000;
+    int numberOfUnitCells = 5;
+    double latticeConstant = 5.26;
+    bool loadState = false;
+    bool thermostatEnabled = false;
+    double temperature = 200.0;
+    double relaxationTime = dt*100;
 
-    /*
-    cout << "One unit of length is " << UnitConverter::lengthToSI(1.0) << " meters" << endl;
-    cout << "One unit of velocity is " << UnitConverter::velocityToSI(1.0) << " meters/second" << endl;
-    cout << "One unit of time is " << UnitConverter::timeToSI(1.0) << " seconds" << endl;
-    cout << "One unit of mass is " << UnitConverter::massToSI(1.0) << " kg" << endl;
-    cout << "One unit of temperature is " << UnitConverter::temperatureToSI(1.0) << " K" << endl;
-    cout << "One unit of pressure is " << UnitConverter::pressureToSI(1.0) << " Pa" << endl;
-    cout << "One unit of energy is " << UnitConverter::energyToSI(1.0) << " J" << endl;
-    cout << "Sigma: " << UnitConverter::lengthFromAngstroms(3.405) << endl;
-    */
-
-    double b = 5.26;
-    int numberOfUnitCellsEachDimension = 5;
+    if(argc > 1) {
+        dt = UnitConverter::timeFromSI(atof(argv[1])*1e-15);
+        numTimeSteps = atoi(argv[2]);
+        numberOfUnitCells = atoi(argv[3]);
+        latticeConstant = atof(argv[4]);
+        loadState = atoi(argv[5]);
+        thermostatEnabled = atoi(argv[6]);
+        temperature = atof(argv[7]);
+    }
 
     System system;
-    double systemTemp = 200.0;
+
     double sigma = UnitConverter::lengthFromAngstroms(3.405);
+
     system.m_rCut = 2.5*sigma;
-    system.createFCCLattice(numberOfUnitCellsEachDimension, UnitConverter::lengthFromAngstroms(b), systemTemp);
+    system.createFCCLattice(numberOfUnitCells, UnitConverter::lengthFromAngstroms(latticeConstant), temperature);
 
     LennardJones* potential = new LennardJones(sigma,1.0);
     potential->useCellLists = true;
@@ -55,12 +61,7 @@ int main()
 
     clock_t begin1 = clock();
 
-    double relaxationTime = dt*100;
-    double T_bath = 500.0;
-    BerendsenThermostat myThermostat(relaxationTime,UnitConverter::temperatureFromSI(T_bath),dt);
-    bool thermostatOn = false; //should be some sys.argv.
-
-    int numTimeSteps = 500;
+    BerendsenThermostat myThermostat(relaxationTime,UnitConverter::temperatureFromSI(temperature),dt);
 
     for(int timestep=0; timestep<numTimeSteps; timestep++) {
 
@@ -72,7 +73,7 @@ int main()
         }
         */
 
-        if(thermostatOn) {
+        if(thermostatEnabled) {
             myThermostat.adjustVelocity(&system, statisticsSampler->temperature);
         }
 

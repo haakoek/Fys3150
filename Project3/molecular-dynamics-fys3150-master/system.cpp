@@ -7,8 +7,6 @@
 
 using namespace std;
 
-
-
 System::System() :
     m_potential(0),
     m_integrator(0),
@@ -79,9 +77,6 @@ void System::createFCCLattice(int numberOfUnitCellsEachDimension, double lattice
         for(int j = 0; j < N; j++) {
             for(int k = 0; k < N; k++) {
 
-
-
-
                 Atom * local_atom1 = new Atom(UnitConverter::massFromSI(6.63352088e-26));
                 Atom * local_atom2 = new Atom(UnitConverter::massFromSI(6.63352088e-26));
                 Atom * local_atom3 = new Atom(UnitConverter::massFromSI(6.63352088e-26));
@@ -97,18 +92,15 @@ void System::createFCCLattice(int numberOfUnitCellsEachDimension, double lattice
                 atoms().push_back(local_atom3);
                 atoms().push_back(local_atom4);
 
-
                 local_atom1->position.set(i*b,j*b,k*b);
                 local_atom2->position.set(b*(0.5+i),b*(0.5+j),b*k);
                 local_atom3->position.set(i*b,b*(0.5+j),b*(0.5+k));
                 local_atom4->position.set(b*(0.5+i),j*b,(k+0.5)*b);
-
-
-
             }
         }
 
     }
+
     setSystemSize(vec3 (N*b,N*b,N*b));
 
 }

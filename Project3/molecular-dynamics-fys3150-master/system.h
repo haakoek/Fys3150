@@ -4,10 +4,12 @@
 #include <math/vec3.h>
 #include <iostream>
 #include <CellList.h>
+#include <string.h>
 
 
 class Potential; class Integrator;
 using std::vector;
+using std::string;
 
 
 class System
@@ -32,6 +34,8 @@ public:
     void removeMomentum();
     void calculateForces();
     void step(double dt);
+    void save(string filename, System* system);
+    void load(string filename, System* system);
     double m_rCut;
     CellList myCellist;
 
