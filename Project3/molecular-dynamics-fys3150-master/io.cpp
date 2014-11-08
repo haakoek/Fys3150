@@ -3,7 +3,19 @@
 #include <atom.h>
 #include <unitconverter.h>
 #include <cstdlib>
-using std::endl; using std::cout;
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+using std::endl;
+using std::cout;
+using std::string;
+using std::ios;
+using std::ifstream;
+
 
 IO::IO()
 {
@@ -38,4 +50,69 @@ void IO::saveState(System *system)
         Atom *atom = system->atoms()[n];
         file << "Ar " << UnitConverter::lengthToAngstroms(atom->position.x()) << " " << UnitConverter::lengthToAngstroms(atom->position.y()) << " " << UnitConverter::lengthToAngstroms(atom->position.z()) << endl;
     }
+}
+
+void IO::save(string filename, System* system)
+{
+    ofstream stateFile(filename.c_str(), ios::out | ios::binary);
+
+    if (!stateFile.is_open()) {
+        cout << "Could not open file " << filename << ". Aborting!" << endl;
+        exit(1);
+    }
+
+    int numberOfPhaseSpaceCoordinates = 6*system->atoms().size();
+    double *phaseSpace = new double[numberOfPhaseSpaceCoordinates];
+    vec3 systemSize = system->systemSize();
+
+    int phaseSpaceCounter = 0;
+
+    for(int i = 0; i < system->atoms().size(); i++) {
+        Atom* atom = system->atoms()[i];
+        phaseSpace[phaseSpaceCounter++] = atom->position[0];
+        phaseSpace[phaseSpaceCounter++] = atom->position[1];
+        phaseSpace[phaseSpaceCounter++] = atom->position[2];
+        phaseSpace[phaseSpaceCounter++] = atom->velocity[0];
+        phaseSpace[phaseSpaceCounter++] = atom->velocity[1];
+        phaseSpace[phaseSpaceCounter++] = atom->velocity[2];
+    }
+
+    int numberOfAtoms = system->atoms().size();
+    stateFile.write(reinterpret_cast<char*>(&numberOfAtoms),sizeof(int));
+    stateFile.write(reinterpret_cast<char*>(phaseSpace), numberOfPhaseSpaceCoordinates*sizeof(double));
+    stateFile.write(reinterpret_cast<char*>(&systemSize[0]),3*sizeof(double));
+    stateFile.close();
+    delete phaseSpace;
+}
+
+void IO::load(string filename, System* system)
+{
+    ifstream stateFile(filename.c_str(), ios::in | ios::binary);
+
+    if (!stateFile.is_open()) {
+        cout << "Could not open file " << filename << ". Aborting!" << endl;
+        exit(1);
+    }
+
+    int numberOfAtoms;
+    stateFile.read(reinterpret_cast<char*>(&numberOfAtoms), sizeof(int));
+    double *phaseSpace = new double[6*numberOfAtoms];
+    stateFile.read(reinterpret_cast<char*>(phaseSpace), 6*numberOfAtoms*sizeof(double));
+    vec3 systemSize;
+    stateFile.read(reinterpret_cast<char*>(&systemSize[0]), 3*sizeof(double));
+    system->setSystemSize(systemSize);
+
+    int phaseSpaceCounter = 0;
+    double mass = 39.948;
+    system->atoms().clear();
+
+    for(int i = 0; i < numberOfAtoms; i++) {
+        Atom* atom = new Atom(mass);
+        atom->position = vec3(phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++]);
+        atom->velocity = vec3(phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++]);
+        system->atoms().push_back(atom);
+    }
+    stateFile.close();
+    delete phaseSpace;
+
 }
