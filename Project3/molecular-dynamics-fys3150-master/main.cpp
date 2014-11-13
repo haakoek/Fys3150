@@ -20,10 +20,10 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     double dt = UnitConverter::timeFromSI(1e-15); // You should try different values for dt as well.
-    int numTimeSteps = 1000;
+    int numTimeSteps = 2000;
     int numberOfUnitCells = 5;
     double latticeConstant = 5.26;
-    bool loadState = false;
+    bool loadState = true;
     bool thermostatEnabled = false;
     double temperature = 200.0;
     double relaxationTime = dt*100;
@@ -39,18 +39,27 @@ int main(int argc, char* argv[])
     }
 
     System system;
+    IO fileManager;
+
 
     double sigma = UnitConverter::lengthFromAngstroms(3.405);
 
     system.m_rCut = 2.5*sigma;
-    system.createFCCLattice(numberOfUnitCells, UnitConverter::lengthFromAngstroms(latticeConstant), temperature);
+
+    if(loadState) {
+        cout << "LOADED!!!" << endl;
+        fileManager.load("state.bin",&system);
+    } else {
+
+        system.createFCCLattice(numberOfUnitCells, UnitConverter::lengthFromAngstroms(latticeConstant), temperature);
+    }
 
     LennardJones* potential = new LennardJones(sigma,1.0);
     potential->useCellLists = true;
     system.setPotential(potential);
     system.setIntegrator(new VelocityVerlet());
 
-    StatisticsSampler *statisticsSampler = new StatisticsSampler(); //
+    StatisticsSampler *statisticsSampler = new StatisticsSampler(&fileManager); //
     statisticsSampler->sample(&system);
     statisticsSampler->sampleMomentum(&system);
     system.setSystemNetMomentum(statisticsSampler->netMomentum);
@@ -67,11 +76,14 @@ int main(int argc, char* argv[])
 
         system.step(dt);
         statisticsSampler->sample(&system);
-        /*
+
+
         if(timestep % 200 == 0) {
             statisticsSampler->printSample(timestep);
+            statisticsSampler->writeStatisticsToFile(&system,timestep);
+
         }
-        */
+
 
         if(thermostatEnabled) {
             myThermostat.adjustVelocity(&system, statisticsSampler->temperature);
@@ -96,6 +108,9 @@ int main(int argc, char* argv[])
     */
 
     movie->close();
+
+
+    fileManager.save("state.bin",&system);
 
     return 0;
 }

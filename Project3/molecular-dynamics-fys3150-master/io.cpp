@@ -15,6 +15,7 @@ using std::cout;
 using std::string;
 using std::ios;
 using std::ifstream;
+using namespace std;
 
 
 IO::IO()
@@ -103,11 +104,11 @@ void IO::load(string filename, System* system)
     system->setSystemSize(systemSize);
 
     int phaseSpaceCounter = 0;
-    double mass = 39.948;
+    //double mass = 39.948;
     system->atoms().clear();
 
     for(int i = 0; i < numberOfAtoms; i++) {
-        Atom* atom = new Atom(mass);
+        Atom* atom = new Atom(UnitConverter::massFromSI(6.63352088e-26));
         atom->position = vec3(phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++]);
         atom->velocity = vec3(phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++], phaseSpace[phaseSpaceCounter++]);
         system->atoms().push_back(atom);
@@ -115,4 +116,28 @@ void IO::load(string filename, System* system)
     stateFile.close();
     delete phaseSpace;
 
+}
+
+void IO::writeEnergyToFile(string filename, double kineticEnergy, double potentialEnergy, int timestep)
+{
+    if(!energyFile.is_open()) {
+        energyFile.open(filename.c_str(),ios::out);
+    }
+
+    energyFile << setiosflags(ios::showpoint | ios::uppercase);
+    energyFile << setw(15) << setprecision(8) << timestep;
+    energyFile << setw(15) << setprecision(8) << kineticEnergy;
+    energyFile << setw(15) << setprecision(8) << potentialEnergy << endl;
+
+}
+
+void IO::writetemperatureToFile(string filename, double temperature, int timestep)
+{
+    if(!temperatureFile.is_open()) {
+        temperatureFile.open(filename.c_str(),ios::out);
+    }
+
+    temperatureFile << setiosflags(ios::showpoint | ios::uppercase);
+    temperatureFile << setw(15) << setprecision(8) << timestep;
+    temperatureFile << setw(15) << setprecision(8) << UnitConverter::temperatureToSI(temperature) << endl;
 }

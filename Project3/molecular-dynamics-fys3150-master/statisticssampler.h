@@ -1,5 +1,6 @@
 #pragma once
 #include <system.h>
+#include <io.h>
 
 class StatisticsSampler
 {
@@ -10,12 +11,17 @@ public:
     double temperature;
     double kineticEnergy;
     double potentialEnergy;
+    double numberDensity;
+    double pressure;
+    IO* myFileManager;
 
-    StatisticsSampler();
+    StatisticsSampler(IO* myFileManager);
     ~StatisticsSampler();
     void sample(System *system);
     void sampleKineticEnergy(System *system);
     void printSample(double timestep);
+    void sampleNumberDensity(System *system);
     void sampleTemperature(System *system);
+    void writeStatisticsToFile(System *system, int timestep);
     vec3 sampleMomentum(System *system);
 };

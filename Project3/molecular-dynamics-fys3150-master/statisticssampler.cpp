@@ -5,11 +5,14 @@
 
 using namespace std;
 
-StatisticsSampler::StatisticsSampler()
+StatisticsSampler::StatisticsSampler(IO *myFileManager)
 {
     temperature = 0.0;
     potentialEnergy = 0.0;
     kineticEnergy = 0.0;
+    numberDensity = 0.0;
+    pressure = 0.0;
+    this->myFileManager = myFileManager;
 }
 
 StatisticsSampler::~StatisticsSampler()
@@ -23,8 +26,11 @@ void StatisticsSampler::sample(System *system)
     sampleKineticEnergy(system);
     sampleMomentum(system);
     sampleTemperature(system);
+    sampleNumberDensity(system);
     potentialEnergy = system->potential()->potentialEnergy();
-    // ...
+
+    // write stuff to file
+
 }
 
 void StatisticsSampler::sampleKineticEnergy(System *system)
@@ -64,6 +70,10 @@ vec3 StatisticsSampler::sampleMomentum(System *system) {
     return netMomentum;
 }
 
+void StatisticsSampler::sampleNumberDensity(System *system) {
+    numberDensity = (system->atoms().size())/(system->systemSize().x()*system->systemSize().y()*system->systemSize().z());
+}
+
 void StatisticsSampler::printSample(double timestep) {
     cout << "Timestep= " << timestep << endl;
     cout << "E_k= " << kineticEnergy << endl;
@@ -72,3 +82,9 @@ void StatisticsSampler::printSample(double timestep) {
     cout << "Temperature= " << UnitConverter::temperatureToSI(temperature) << endl;
     cout << "**************" << endl;
 }
+
+void StatisticsSampler::writeStatisticsToFile(System* system, int timestep) {
+    myFileManager->writeEnergyToFile("energyFile.txt", kineticEnergy, potentialEnergy, timestep);
+    myFileManager->writetemperatureToFile("tempratureFile.txt", temperature, timestep);
+}
+
