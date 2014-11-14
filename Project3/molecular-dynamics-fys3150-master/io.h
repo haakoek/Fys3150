@@ -26,6 +26,6 @@ public:
     void load(string filename, System* system);
     void writeEnergyToFile(string filename, double kineticEnergy, double potentialEnergy, int timestep);
     void writetemperatureToFile(string filename, double temperature, int timestep);
-    void writePressureToFile(string filename, System* system);
+    void writePressureToFile(string filename, double pressure, int timestep);
 
 };

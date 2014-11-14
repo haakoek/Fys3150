@@ -34,6 +34,7 @@ public:
     void removeMomentum();
     void calculateForces();
     void step(double dt);
+    double volume();
     double m_rCut;
     CellList myCellist;
 

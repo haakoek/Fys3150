@@ -141,3 +141,15 @@ void IO::writetemperatureToFile(string filename, double temperature, int timeste
     temperatureFile << setw(15) << setprecision(8) << timestep;
     temperatureFile << setw(15) << setprecision(8) << UnitConverter::temperatureToSI(temperature) << endl;
 }
+
+void IO::writePressureToFile(string filename, double pressure, int timestep)
+{
+    if(!pressureFile.is_open()) {
+        pressureFile.open(filename.c_str(),ios::out);
+    }
+
+    pressureFile << setiosflags(ios::showpoint | ios::uppercase);
+    pressureFile << setw(15) << setprecision(8) << timestep;
+    pressureFile << setw(15) << setprecision(8) << pressure << endl;
+
+}

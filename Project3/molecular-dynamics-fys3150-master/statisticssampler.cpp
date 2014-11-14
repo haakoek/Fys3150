@@ -28,6 +28,7 @@ void StatisticsSampler::sample(System *system)
     sampleTemperature(system);
     sampleNumberDensity(system);
     potentialEnergy = system->potential()->potentialEnergy();
+    pressure = numberDensity*temperature - (1.0/(3.0*system->volume()))*system->potential()->pressure();
 
     // write stuff to file
 
@@ -86,5 +87,6 @@ void StatisticsSampler::printSample(double timestep) {
 void StatisticsSampler::writeStatisticsToFile(System* system, int timestep) {
     myFileManager->writeEnergyToFile("energyFile.txt", kineticEnergy, potentialEnergy, timestep);
     myFileManager->writetemperatureToFile("tempratureFile.txt", temperature, timestep);
+    myFileManager->writePressureToFile(("pressureFile.txt"),pressure,timestep);
 }
 

@@ -46,7 +46,7 @@ void LennardJones::calculateForces(System *system)
 
             //End Minimum Image Criterion
 
-            double dr = r_ij.length();
+            double dr = sqrt(r_ij.dot(r_ij)); //r_ij.length();
 
 
             double DU_dr = -(24.0*m_epsilon/dr)*(2.0*(pow(m_sigma/dr,12)) - (pow(m_sigma/dr,6)));
@@ -81,6 +81,7 @@ void LennardJones::calculateForcesWithCellList(System *system)
 
 
     m_potentialEnergy = 0;
+    m_pressure = 0;
 
 
     vec3 systemSize = system->systemSize();
@@ -107,7 +108,8 @@ void LennardJones::calculateForcesWithCellList(System *system)
                                         continue;
                                     }
 
-                                    vec3 r_ij = atom_i->position - atom_j->position;
+                                    vec3 r_ij = atom_i->position;
+                                    r_ij.addAndMultiply(atom_j->position, -1);
 
 
 
@@ -116,7 +118,7 @@ void LennardJones::calculateForcesWithCellList(System *system)
                                         else if(r_ij[a] < -0.5*systemSize[a]) r_ij[a] += systemSize[a];
                                     }
 
-                                    double dr = r_ij.length();
+                                    double dr = r_ij.length(); //sqrt(r_ij.dot(r_ij)); //r_ij.length();
 
                                     if(dr <= system->m_rCut) {
 
@@ -136,6 +138,7 @@ void LennardJones::calculateForcesWithCellList(System *system)
                                         atom_j->force.add(Force_j);
 
                                         m_potentialEnergy = m_potentialEnergy + 4.0*m_epsilon*(pow(m_sigma,12)/pow(dr,12) - pow(m_sigma,6)/pow(dr,6)) - 4.0*m_epsilon*(pow(m_sigma,12)/pow((system->m_rCut),12) - pow(m_sigma,6)/pow(system->m_rCut,6));
+                                        m_pressure = m_pressure + (r_ij.dot(Force_i));
 
                                     }
                                 }

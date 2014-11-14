@@ -110,6 +110,11 @@ void System::calculateForces() {
     m_potential->calculateForces(this);
 }
 
+double System::volume()
+{
+    return systemSize().x()*systemSize().y()*systemSize().z();
+}
+
 void System::step(double dt) {
     //cout << "System sin step" << endl;
     m_integrator->integrate(this, dt);

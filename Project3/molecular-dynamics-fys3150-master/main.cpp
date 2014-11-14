@@ -20,13 +20,14 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     double dt = UnitConverter::timeFromSI(1e-15); // You should try different values for dt as well.
-    int numTimeSteps = 2000;
-    int numberOfUnitCells = 5;
+    int numTimeSteps = 1001;
+    int numberOfUnitCells = 10;
     double latticeConstant = 5.26;
-    bool loadState = true;
+    bool loadState = false;
     bool thermostatEnabled = false;
-    double temperature = 200.0;
+    double temperature = 300.0;
     double relaxationTime = dt*100;
+    //cout << UnitConverter::pressureToSI(1.0) << endl;
 
     if(argc > 1) {
         dt = UnitConverter::timeFromSI(atof(argv[1])*1e-15);
@@ -65,8 +66,8 @@ int main(int argc, char* argv[])
     system.setSystemNetMomentum(statisticsSampler->netMomentum);
     system.removeMomentum();
 
-    IO *movie = new IO(); // To write the state to file
-    movie->open("movie.xyz");
+    //IO *movie = new IO(); // To write the state to file
+    //movie->open("movie.xyz");
 
     clock_t begin1 = clock();
 
@@ -76,10 +77,10 @@ int main(int argc, char* argv[])
 
         system.step(dt);
         statisticsSampler->sample(&system);
+        cout << timestep << endl;
 
-
-        if(timestep % 200 == 0) {
-            statisticsSampler->printSample(timestep);
+        if(timestep % 100 == 0) {
+            //statisticsSampler->printSample(timestep);
             statisticsSampler->writeStatisticsToFile(&system,timestep);
 
         }
@@ -89,7 +90,7 @@ int main(int argc, char* argv[])
             myThermostat.adjustVelocity(&system, statisticsSampler->temperature);
         }
 
-        movie->saveState(&system);
+        //movie->saveState(&system);
 
     }
 
@@ -107,7 +108,7 @@ int main(int argc, char* argv[])
     cout << "*********************" << endl;
     */
 
-    movie->close();
+    //movie->close();
 
 
     fileManager.save("state.bin",&system);
