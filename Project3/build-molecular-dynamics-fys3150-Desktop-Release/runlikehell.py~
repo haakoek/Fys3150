@@ -1,0 +1,73 @@
+from mdconfig import *
+from numpy import *
+from scitools.all import *
+
+numberOfUnitCells = 10
+#temperature = 200
+T = [200]
+lattice = linspace(5.26,10,15)
+loopN = len(lattice)
+
+program = MD(dt=1, name="molecular-dynamics-fys3150") # dt in femtoseconds
+
+for temperature in T:
+	
+	index = 0
+	pressure_vec = zeros(loopN)
+	density_vec = zeros(loopN)
+	volume_vec = zeros(loopN)
+	
+	for b in lattice:
+	
+		numberOfAtoms = 4*numberOfUnitCells**3
+		rho_n = (numberOfAtoms)/(numberOfUnitCells*b**3)
+		print rho_n
+		density_vec[index] = rho_n
+		volume_vec[index] = (numberOfUnitCells*b)**3
+
+		program.runNewSystem(numberOfUnitCells = numberOfUnitCells, FCCLatticeConstant = b, temperature=temperature) # lattice constant in 	angstroms
+		print "Made New System!!!"
+		program.saveState(path="states/00_initialState")
+		#Run with thermostat
+		program.runThermostat(temperature = temperature, timesteps = 1000)
+		print "Thermostat Finished!!!"
+		program.saveState(path="states/01_T%d" % temperature)
+		#Thermalize for some time (Note: thermalizing means without the thermostat, equilibrate)
+		program.runThermalize(timesteps = 2000)
+		print "System Thermalized!!!"
+		program.saveState(path="states/02_thermalized")
+		#Sample
+		program.runThermalize(timesteps = 3000,sample=True)
+		print "System Sampled!!!"
+	
+		pressureFile = open('pressureFile.txt','r')
+		pressure = []
+	
+		for line in pressureFile:
+			tmp = line.split()
+			pressure.append(float(tmp[1]))
+	
+		pressureFile.close()
+		pressure = array(pressure)
+	
+		Pavg = 0.0
+	
+		for i in xrange(0,len(pressure)):
+			Pavg += pressure[i]
+	
+		Pavg = (1.0/len(pressure))*Pavg
+		pressure_vec[index] = Pavg 
+	
+		index += 1
+		program.saveState(path="states/03_statistics",plot=True)
+	
+
+	plot(volume_vec,pressure_vec,show=True)
+	title('Isothermtest')
+	legend('T=%d' % temperature)
+	xlabel('V')
+	ylabel('P')
+	hold('on')
+	savefig('isothermtestFixedThermostatLong.png')
+
+

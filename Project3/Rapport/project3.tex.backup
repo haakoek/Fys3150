@@ -1,0 +1,60 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{wasysym}
+\usepackage{algorithm2e}
+\LinesNumbered % Number algorithm lines
+
+%opening
+\title{Project3 Fys3150}
+\author{Håkon Kristiansen and Stian Goplen}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Introduction}
+In this project we will implement a model called Molecular Dynamics (MD). MD allows us to study the dynamics of atoms
+and explore the phase space. The atoms interact through a force given as the negative gradient of a potential function. In this
+project we use the Lennard-Jones potential. With this force we can integrate Newton's laws. While exploring the phase space, we will
+sample statistical properties such as energy, temperature, pressure and heat capacity. Further we will look at phase transitions.
+
+Initially we where given a C$++$ code skeleton containing the basic features of an MD code like the possibility to create atoms, a fully 
+functional class for three-dimensional vectors, etc.
+The program creates 100 argon atoms and place them uniformally inside a box of 10 Angstroms (Å). Each atom is given a velocity according
+to the Maxwell-Boltzmann distribution. The program evolves the system in time with no forces so that all atoms move in a straight line. It creates
+a file called movie.xyz containing all timesteps so it can be visualized with Ovito. Throughout the whole project we study the 
+properties of argon. 
+
+\section{Periodic Boundary Conditions}
+The first modifaction we do to the code is that we want to simulate a system of infinte size, eliminating boundary effects. In order to do so
+we apply periodic boundary conditions. We restrict ourselves to a square system so that $L_x = L_y = L_z = L$ with $L$ being the
+length of the box. Periodic boundary conditions ensures that if a atoms leaves the box in any direction we give it a position keeping it
+in the box. It is implented in a function applyPeriodicBoundaryConditions in the System class. For the x-direction we have the following
+algorithm
+
+\begin{algorithm}[H]
+  \caption{How to write algorithms}
+  \SetAlgoLined
+  Assume that $r_x$ is the position of the atom in the $x$-direction\; \label{first_step}
+  \eIf{\text{$r_x < 0$}}{
+    $r_x = r_x + L_x$\;
+    }
+%    }\eIf{\text{$rx \geq L_x$}}{
+%     $rx = rx - L_x$\;
+%   }  
+  
+\end{algorithm}
+
+\end{document}

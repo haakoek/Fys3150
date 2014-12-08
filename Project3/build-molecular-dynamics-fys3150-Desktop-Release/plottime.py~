@@ -1,0 +1,30 @@
+from numpy import *
+from matplotlib import pyplot as plt
+
+Natoms = [108,256,500,864,1372,2048]
+tbefore = [0.3074456,2.01438,7.52457,22.1092,55.3005,122.345]
+
+
+Natoms = array(Natoms)
+tbefore = array(tbefore)
+
+
+balle = 0
+
+plt.figure(balle)
+plt.plot(Natoms,tbefore)
+plt.xlabel('N[atoms]')
+plt.ylabel('Time[N[atoms]]')
+plt.savefig('timeBeforeCellLists.png')
+
+Natoms = [1372,2048,2916,4000]
+tafter = [7.84457, 15.7481,17.5199,20.9495]
+tafter = array(tafter)
+Natoms = array(Natoms)
+
+
+plt.figure(balle+1)
+plt.plot(Natoms,tafter)
+plt.xlabel('N[atoms]')
+plt.ylabel('Time[N[atoms]]')
+plt.savefig('timeWithCellLists.png')

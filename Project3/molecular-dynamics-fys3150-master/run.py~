@@ -1,0 +1,34 @@
+from mdconfig import *
+
+program = MD(dt=10, name="molecular-dynamics-fys3150") # dt in femtoseconds
+
+# Create new FCC lattice
+program.runNewSystem(numberOfUnitCells = 10, FCCLatticeConstant = 5.26) # lattice constant in angstroms
+
+# Thermalize for some time (Note: thermalizing means without the thermostat, equilibrate)
+program.runThermostat(temperature = 300, timesteps = 1000)
+
+# Thermalize for some time (Note: thermalizing means without the thermostat, equilibrate)
+program.runThermalize(timesteps = 10000)
+
+program.saveState(path="states/myFavoriteState")
+
+# In your main function in your c++ program you can read in these variables as arguments like this: 
+# First, we assume some default values, then if arguments are given, use them instead
+
+# int numTimeSteps = 1000;
+# double dt = UnitConverter::timeFromSI(1e-14); 
+# int numUnitCells = 10;
+# float latticeConstant = 5.26;
+# bool loadState = false;
+# bool thermostatEnabled = false;
+# float temperature = 300;
+# if(args>1) {
+#     dt = UnitConverter::timeFromSI(atof(argv[1])*1e-15);
+#     numTimeSteps = atoi(argv[2]);
+#     numberOfUnitCells = atoi(argv[3]);
+#     latticeConstant = atof(argv[4]);
+#     loadState = atoi(argv[5]);
+#     thermostatEnabled = atoi(argv[6]);
+#     temperature = atof(argv[7]);
+# }
