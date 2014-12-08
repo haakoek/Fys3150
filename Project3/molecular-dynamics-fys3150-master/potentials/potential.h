@@ -8,6 +8,7 @@ class Potential
 protected:
     double m_potentialEnergy;
     double m_pressure;
+    //bool   m_sampleStatistics;
 public:
     Potential();
     virtual ~Potential() {}

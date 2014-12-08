@@ -82,27 +82,30 @@ void LennardJones::calculateForcesWithCellList(System *system)
 
     m_potentialEnergy = 0;
     m_pressure = 0;
-
+    double oneOverRcut = 1.0/system->m_rCut;
+    double oneOverRcut2 = oneOverRcut*oneOverRcut;
+    double oneOverRcut6 = oneOverRcut2*oneOverRcut2*oneOverRcut2;
+    double sigma6 = m_sigma*m_sigma*m_sigma*m_sigma*m_sigma*m_sigma;
+    double potentialEnergyAtRcut = (4*m_epsilon*sigma6*oneOverRcut6*(sigma6*oneOverRcut6 - 1));
 
     vec3 systemSize = system->systemSize();
     for(int cx = 0; cx < system->myCellist.nx; cx++) {
         for(int cy = 0; cy < system->myCellist.ny; cy++) {
             for(int cz = 0; cz < system->myCellist.nz; cz++) {
+                vector<Atom *> &celle1 = system->myCellist.cells[cx][cy][cz];
+                int celle1Size = celle1.size();
                 for(int dx = -1; dx <= 1; dx++) {
                     for(int dy = -1; dy <= 1; dy++) {
                         for(int dz = -1; dz <=1; dz++) {
                             //Her må det skje noe....
-
-                            vector<Atom *> &celle1 = system->myCellist.cells[cx][cy][cz];
                             vector<Atom *> &celle2 = system->myCellist.cells[(cx + dx + system->myCellist.nx) % system->myCellist.nx][(cy + dy + system->myCellist.ny) % system->myCellist.ny][(cz + dz + system->myCellist.nz) % system->myCellist.nz];
+                            int celle2Size = celle2.size();
 
-                            for(int i = 0; i < celle1.size(); i++) {
-                                for(int j = 0; j < celle2.size(); j++) {
+                            for(int i = 0; i < celle1Size; i++) {
+                                Atom* atom_i = celle1[i];
 
-                                    Atom* atom_i = celle1[i];
+                                for(int j = 0; j < celle2Size; j++) {
                                     Atom* atom_j = celle2[j];
-
-
 
                                     if(atom_i->index() <= atom_j->index()) {
                                         continue;
@@ -111,22 +114,31 @@ void LennardJones::calculateForcesWithCellList(System *system)
                                     vec3 r_ij = atom_i->position;
                                     r_ij.addAndMultiply(atom_j->position, -1);
 
-
-
                                     for(int a=0; a<3; a++) {
                                         if(r_ij[a] > 0.5*systemSize[a]) r_ij[a] -= systemSize[a];
                                         else if(r_ij[a] < -0.5*systemSize[a]) r_ij[a] += systemSize[a];
                                     }
 
-                                    double dr = r_ij.length(); //sqrt(r_ij.dot(r_ij)); //r_ij.length();
+                                    double dr2 = r_ij.lengthSquared(); //sqrt(r_ij.dot(r_ij)); //r_ij.length();
 
-                                    if(dr <= system->m_rCut) {
-
-
-
-                                        double DU_dr = -(24.0*m_epsilon/dr)*(2.0*(pow(m_sigma/dr,12)) - (pow(m_sigma/dr,6)));
+                                    if(dr2 <= system->m_rCut*system->m_rCut) {
 
 
+                                        double oneOverDr2 = 1.0/dr2;
+
+                                        double oneOverDr6 = oneOverDr2*oneOverDr2*oneOverDr2;
+
+
+                                        //double DU_dr = -(24.0*m_epsilon/dr)*(2.0*(pow(m_sigma/dr,12)) - (pow(m_sigma/dr,6)));
+                                        double force = -24*m_epsilon*sigma6*oneOverDr6*(2*sigma6*oneOverDr6 - 1)*oneOverDr2;
+
+                                        atom_i->force.addAndMultiply(r_ij, -force);
+                                        atom_j->force.addAndMultiply(r_ij, force);
+
+                                        m_pressure += force*sqrt(dr2)*dr2;
+                                        m_potentialEnergy += (4*m_epsilon*sigma6*oneOverDr6*(sigma6*oneOverDr6 - 1) - potentialEnergyAtRcut);
+
+                                        /*
                                         double Fx = -DU_dr*(r_ij.x()/dr);
                                         double Fy = -DU_dr*(r_ij.y()/dr);
                                         double Fz = -DU_dr*(r_ij.z()/dr);
@@ -139,7 +151,7 @@ void LennardJones::calculateForcesWithCellList(System *system)
 
                                         m_potentialEnergy = m_potentialEnergy + 4.0*m_epsilon*(pow(m_sigma,12)/pow(dr,12) - pow(m_sigma,6)/pow(dr,6)) - 4.0*m_epsilon*(pow(m_sigma,12)/pow((system->m_rCut),12) - pow(m_sigma,6)/pow(system->m_rCut,6));
                                         m_pressure = m_pressure + (r_ij.dot(Force_i));
-
+                                        */
                                     }
                                 }
                             }

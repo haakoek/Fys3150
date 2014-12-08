@@ -127,7 +127,8 @@ void IO::writeEnergyToFile(string filename, double kineticEnergy, double potenti
     energyFile << setiosflags(ios::showpoint | ios::uppercase);
     energyFile << setw(15) << setprecision(8) << timestep;
     energyFile << setw(15) << setprecision(8) << kineticEnergy;
-    energyFile << setw(15) << setprecision(8) << potentialEnergy << endl;
+    energyFile << setw(15) << setprecision(8) << potentialEnergy;
+    energyFile << setw(15) << setprecision(8) << potentialEnergy + kineticEnergy << endl;
 
 }
 

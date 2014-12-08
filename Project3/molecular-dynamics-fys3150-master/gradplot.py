@@ -38,4 +38,6 @@ while(ratio >= eps):
 print "ratio=%g, r_c = %g, r_c/sigma=%g" %( ratio, r_cut, r_cut/sigma)
 		
 plt.plot(r,gradU_vec)
+plt.xlabel('r_ij')
+plt.ylabel('F(r_ij)/eps')
 plt.savefig("gradplot.png")

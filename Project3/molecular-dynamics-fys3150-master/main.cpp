@@ -19,15 +19,20 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+
     double dt = UnitConverter::timeFromSI(1e-15); // You should try different values for dt as well.
+
     int numTimeSteps = 1001;
     int numberOfUnitCells = 10;
     double latticeConstant = 5.26;
     bool loadState = false;
     bool thermostatEnabled = false;
     double temperature = 300.0;
-    double relaxationTime = dt*100;
-    //cout << UnitConverter::pressureToSI(1.0) << endl;
+
+    //bool sample = false;
+
+    cout << UnitConverter::massFromSI(6.63352088e-26) << endl;
+
 
     if(argc > 1) {
         dt = UnitConverter::timeFromSI(atof(argv[1])*1e-15);
@@ -37,7 +42,19 @@ int main(int argc, char* argv[])
         loadState = atoi(argv[5]);
         thermostatEnabled = atoi(argv[6]);
         temperature = atof(argv[7]);
+        //sample = atoi(argv[8]);
     }
+
+    double relaxationTime = dt;
+
+    cout << "Timesteps:" << numTimeSteps << endl;
+    cout << "Cells:" << numberOfUnitCells << endl;
+    cout << "latticeConst:" << latticeConstant << endl;
+    cout << "loadState:" << loadState << endl;
+    cout << "thermoOn:" << thermostatEnabled << endl;
+    cout << "temperature:" << temperature << endl;
+    cout << "tau:" << relaxationTime << endl;
+    cout << "timestep:" << dt;
 
     System system;
     IO fileManager;
@@ -72,22 +89,27 @@ int main(int argc, char* argv[])
     clock_t begin1 = clock();
 
     BerendsenThermostat myThermostat(relaxationTime,UnitConverter::temperatureFromSI(temperature),dt);
-
+    //cout << system.volume() << endl;
     for(int timestep=0; timestep<numTimeSteps; timestep++) {
 
         system.step(dt);
-        statisticsSampler->sample(&system);
-        cout << timestep << endl;
+        //statisticsSampler->sample(&system);
 
         if(timestep % 100 == 0) {
             //statisticsSampler->printSample(timestep);
+
+            statisticsSampler->sample(&system);
             statisticsSampler->writeStatisticsToFile(&system,timestep);
+
+            cout << timestep << endl;
 
         }
 
 
         if(thermostatEnabled) {
+            statisticsSampler->sample(&system);
             myThermostat.adjustVelocity(&system, statisticsSampler->temperature);
+            //cout << "Thermostat on" << endl;
         }
 
         //movie->saveState(&system);
@@ -100,13 +122,13 @@ int main(int argc, char* argv[])
     double kiloAtomTimesteps = (system.atoms().size()*numTimeSteps)/elapsed_secs1/1000;
     int numberOfAtoms = system.atoms().size();
 
-    /*
+
     cout << "*********************" << endl;
     cout << "Time Usage: " << elapsed_secs1 << endl;
     cout << "Number of atoms: " << system.atoms().size() << endl;
-    cout << "kiloAtomTimesteps per second of atoms: " << (system.atoms().size()*numTimeSteps)/elapsed_secs1/1000 << endl;
+    cout << "kiloAtomTimesteps per second: " << (system.atoms().size()*numTimeSteps)/elapsed_secs1/1000 << endl;
     cout << "*********************" << endl;
-    */
+
 
     //movie->close();
 

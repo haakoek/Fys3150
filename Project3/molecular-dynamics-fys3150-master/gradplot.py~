@@ -28,6 +28,8 @@ r_cut = r_max
 grad_max = gradU_vec[indeks_max] 
 eps = grad_max/50.0
 
+#If the force at r is 50 times smaller than grad_max it will be negligible... 
+
 while(ratio >= eps):
 	counter = counter+1
 	ratio = gradU_vec[counter]/gradU_vec[indeks_max]
